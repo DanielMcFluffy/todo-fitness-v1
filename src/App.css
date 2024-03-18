@@ -1,0 +1,48 @@
+.custom-muted {
+  color: #cdcaca;
+}
+
+.navbar-full-width {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.welcome-effect {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: black;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 50px;
+  /* // just set a high z index */
+  z-index: 200;
+  transition: opacity 0.4s;
+  opacity: 1;
+}
+
+.welcome-effect p {
+  animation: fadeIn 2.5s ease-in;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+
+/* disable scroll wheel globally*/
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
