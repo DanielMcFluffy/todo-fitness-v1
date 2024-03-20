@@ -3,15 +3,11 @@ import { Container, Nav, Navbar } from "react-bootstrap";
 import Contact from "./pages/Contact";
 import ErrorPage from "./pages/ErrorPage";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
 import './App.css'
 import useLocalStorage from "use-local-storage";
-import AuthContext from "./context/authContext";
+
 import userDataContext from "./context/userDataContext";
-import Auth from "./Auth/Auth";
 import Dashboard from "./pages/Dashboard";
-import { useContext } from "react";
 import BMICalculator from "./pages/BMICalculator";
 import LandingEffect from "./component/LandingEffect";
 
@@ -33,7 +29,6 @@ function LayoutLogOut() {
             EXCELR8
           </NavLink>
           <Nav className="me-auto">
-            <NavLink to="/login" className="nav-link">Login</NavLink>
             <NavLink to="/contact" className="nav-link">Contact Us</NavLink>
           </Nav>
         </Container>
@@ -63,22 +58,38 @@ function LayoutRegister() {
   )
 }
 
-function LayoutLogIn() {
-  const setToken = useContext(AuthContext).setToken;
+//listening to auth status
 
+import { getAuth } from "firebase/auth";
+import { useContext, useEffect } from "react";
+import { AuthContext, AuthProvider } from "./component/AuthProvider";
+
+import { useNavigate } from "react-router-dom";
+
+
+
+function LayoutLogIn() {
+
+  const auth = getAuth();
+  const navigate = useNavigate();
+  const { currentUser } = useContext(AuthContext);
+
+  //check if currentUser is logged in
+
+  useEffect(() => {
+    if (!currentUser) {
+      navigate('/'); //redirect to login
+    }
+
+  }, [currentUser, navigate])
+
+  const handleLogout = () => {
+    auth.signOut();
+  };
 
   return (
     <>
-      {/* <Navbar bg="dark" variant="dark">
-        <Container>
-          <NavLink to="/home/dashboard" className="navbar-brand">EXCELR8</NavLink>
-          <Nav className="me-auto">
-            <NavLink to="/home/profile" className="nav-link">Profile</NavLink>
-            <NavLink to="/home/add" className="nav-link">Workout</NavLink>
-            <NavLink className="nav-link">Log Out</NavLink>
-          </Nav>
-        </Container>
-      </Navbar> */}
+
 
       <Navbar bg="dark" variant="dark" className="justify-content-between">
         <Container>
@@ -89,10 +100,7 @@ function LayoutLogIn() {
           </Nav>
           <Nav>
             <NavLink
-              onClick={() => {
-                setToken(null);
-              }
-              }
+              onClick={handleLogout}
               className="nav-link">Log Out</NavLink>
           </Nav>
         </Container>
@@ -103,15 +111,16 @@ function LayoutLogIn() {
 }
 
 export default function App() {
-  const [token, setToken] = useLocalStorage('token', null);
+
   const [userData, setUserData] = useLocalStorage('userData', []);
 
 
   return (
     <div className="gradient-background" >
       <StyledText>
-        <BrowserRouter>
-          <AuthContext.Provider value={{ token, setToken }} >
+        <AuthProvider>
+          <BrowserRouter>
+
             <userDataContext.Provider value={{ userData, setUserData }} >
               <Routes>
 
@@ -125,7 +134,6 @@ export default function App() {
                       <Home />
                     </>
                   }></Route>
-                  <Route path='/login' element={<Login />} ></Route>
                   <Route path='/contact' element={<Contact />} ></Route>
                   <Route path='*' element={<ErrorPage />} ></Route>
 
@@ -134,7 +142,6 @@ export default function App() {
                 {/* Register Route */}
                 <Route path="/register" element={<LayoutRegister />} >
 
-                  <Route path="/register" element={<Register />} ></Route>
 
                 </Route>
 
@@ -148,26 +155,26 @@ export default function App() {
                     element={
                       <>
 
-                        <Auth>
-                          <Dashboard />
-                        </Auth>
+
+                        <Dashboard />
+
                       </>
                     } />
 
                   <Route
                     path="/home/BMICalculator"
                     element={
-                      <Auth>
-                        <BMICalculator />
-                      </Auth>
+
+                      <BMICalculator />
+
                     } />
 
                   <Route
                     path="/home/statistics"
                     element={
-                      <Auth>
-                        <Statistics />
-                      </Auth>
+
+                      <Statistics />
+
                     } />
 
 
@@ -177,8 +184,8 @@ export default function App() {
               </Routes>
 
             </userDataContext.Provider>
-          </AuthContext.Provider>
-        </BrowserRouter>
+          </BrowserRouter>
+        </AuthProvider>
       </StyledText>
     </div>
 
